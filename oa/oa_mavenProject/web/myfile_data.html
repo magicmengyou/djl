@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>文件展示页面</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-list li {
+            margin-bottom: 10px;
+        }
+        .file-name {
+            font-size: 1.2em;
+            color: #333;
+        }
+        .file-size {
+            font-size: 1.1em;
+            color: #555;
+            margin-left: 10px;
+        }
+        .file-actions {
+            text-align: right;
+        }
+        .file-actions a {
+            margin-right: 10px;
+            color: #337ab7;
+            text-decoration: none;
+        }
+        .file-actions a:hover {
+            color: #23527c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>文件展示页面</h1>
+        <ul class="file-list"></ul>
+        <div class="file-actions"></div>
+    </div>
+    
+    <script>
+        // 获取文件列表
+        function getFileList(path) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", path, true);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    var fileList = JSON.parse(xhr.responseType).map(function(file) {
+                    // var fileList = JSON.parse(xhr.responseText).map(function(file) {
+                        return "<li>" + file.name + " (" + file.size + " bytes)</li>";
+                    });
+                    document.querySelector(".file-list").innerHTML = fileList.join("");
+                } else {
+                    console.log("GET 请求失败: " + xhr.status);
+                }
+            };
+            xhr.send();
+        }
+        
+        // 点击文件列表中的链接时执行
+        document.querySelectorAll(".file-list li").forEach(function(li) {
+            li.addEventListener("click", function(event) {
+                event.preventDefault();
+                var fileName = event.target.innerText;
+                var filePath = event.target.dataset.path;
+                getFileList(filePath);
+            });
+        });
+        
+        // 点击文件夹时执行
+        document.querySelectorAll(".file-actions a").forEach(function(a) {
+            a.addEventListener("click", function(event) {
+                event.preventDefault();
+                var path = event.target.innerText;
+                getFileList(path);
+            });
+        });
+        
+        // 初始化文件列表
+        getFileList("ArchivesSevlet?flag=selectAllFile");
+    </script>
+</body>
+</html>
